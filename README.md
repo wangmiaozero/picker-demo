@@ -1,4 +1,4 @@
-# UniApp `picker-view` 最后一行无法选中：根因、四种方案与工程化实践（深度版）
+# UniApp `picker-view` 最后一行无法选中：根因、四种方案与工程化实践
 
 > 关键词：UniApp、picker-view、边界滚动、选中线对齐、索引映射、工程稳定性
 
