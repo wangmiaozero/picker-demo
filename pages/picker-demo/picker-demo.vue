@@ -1,7 +1,7 @@
 <template>
 	<view class="page">
 		<view class="title">Picker 最后一行不可选修复示例</view>
-		<view class="desc">300 条模拟数据，四种修复策略对比：容器增高 / 指示器偏移 / 虚拟占位项 / 结构占位+几何校准</view>
+		<view class="desc">300 条模拟数据，对比原始写法与四种修复策略：容器增高 / 指示器偏移 / 虚拟占位项 / 结构占位+几何校准</view>
 		<view class="mode-row">
 			<view
 				class="mode-btn"
@@ -17,6 +17,12 @@
 			>
 				工程增强（enhanced）
 			</view>
+		</view>
+
+		<view class="section-title">原始写法：未做修复（对照组）</view>
+		<view class="picker-trigger" @click="openPicker('basic')">
+			<text class="picker-trigger-label">{{ basicLabel }}</text>
+			<text class="picker-trigger-arrow">></text>
 		</view>
 
 		<view class="section-title">思路一：增加容器高度</view>
@@ -42,6 +48,14 @@
 			<text class="picker-trigger-label">{{ geometryLabel }}</text>
 			<text class="picker-trigger-arrow">></text>
 		</view>
+
+		<picker-popup-basic
+			:options="options"
+			v-model="selectedBasicIndex"
+			:visible="showBasicPicker"
+			title="请选择（原始写法）"
+			@update:visible="showBasicPicker = $event"
+		/>
 
 		<picker-popup-height-fix
 			:options="options"
@@ -81,17 +95,19 @@
 
 		<view class="panel compare">
 			<text class="panel-text">总条数：{{ options.length }}</text>
+			<text class="panel-text">原始写法索引：{{ selectedBasicIndex }}，值：{{ basicLabel }}</text>
 			<text class="panel-text">思路一索引：{{ selectedHeightIndex }}，值：{{ heightLabel }}</text>
 			<text class="panel-text">思路二索引：{{ selectedIndicatorIndex }}，值：{{ indicatorLabel }}</text>
 			<text class="panel-text">思路三索引：{{ selectedPlaceholderIndex }}，值：{{ placeholderLabel }}</text>
 			<text class="panel-text">思路四索引：{{ selectedGeometryIndex }}，值：{{ geometryLabel }}</text>
 			<text class="panel-tip">当前模式：{{ compareMode === 'strict' ? '纯思路（不叠加补偿）' : '工程增强（叠加边界补偿）' }}</text>
-			<text class="panel-tip">建议重点验证第 299/300 条。思路四在“数据纯净 + 稳定性”之间通常更均衡。</text>
+			<text class="panel-tip">建议重点验证第 299/300 条。你可以先看“原始写法”复现问题，再对比四种修复方案差异。</text>
 		</view>
 	</view>
 </template>
 
 <script>
+import PickerPopupBasic from '@/components/picker-view-select/picker-popup-basic.vue'
 import PickerPopupHeightFix from '@/components/picker-view-select/picker-popup-height-fix.vue'
 import PickerPopupIndicatorFix from '@/components/picker-view-select/picker-popup-indicator-fix.vue'
 import PickerPopupPlaceholderFix from '@/components/picker-view-select/picker-popup-placeholder-fix.vue'
@@ -99,6 +115,7 @@ import PickerPopupGeometryFix from '@/components/picker-view-select/picker-popup
 
 export default {
 	components: {
+		PickerPopupBasic,
 		PickerPopupHeightFix,
 		PickerPopupIndicatorFix,
 		PickerPopupPlaceholderFix,
@@ -107,10 +124,12 @@ export default {
 	data() {
 		return {
 			options: [],
+			selectedBasicIndex: 0,
 			selectedHeightIndex: 0,
 			selectedIndicatorIndex: 0,
 			selectedPlaceholderIndex: 0,
 			selectedGeometryIndex: 0,
+			showBasicPicker: false,
 			showHeightPicker: false,
 			showIndicatorPicker: false,
 			showPlaceholderPicker: false,
@@ -119,6 +138,10 @@ export default {
 		}
 	},
 	computed: {
+		basicLabel() {
+			const current = this.options[this.selectedBasicIndex]
+			return current ? current.label : '-'
+		},
 		heightLabel() {
 			const current = this.options[this.selectedHeightIndex]
 			return current ? current.label : '-'
@@ -147,6 +170,7 @@ export default {
 	},
 	methods: {
 		openPicker(type) {
+			if (type === 'basic') this.showBasicPicker = true
 			if (type === 'height') this.showHeightPicker = true
 			if (type === 'indicator') this.showIndicatorPicker = true
 			if (type === 'placeholder') this.showPlaceholderPicker = true
